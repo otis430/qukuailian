@@ -104,9 +104,11 @@ function mineCommand(vorpal) {
     vorpal.command('mine <data>', 'Mine a new block.eg: mine "Hello World"')
         .alias('m')
         .action(function (args, callback) {
-            if (args.data) {
+            // args.data 由 minimist 解析，纯数字会被转成 number，这里统一转成字符串存链
+            // （0 也要能挖，所以不能用真值判断）
+            if (args.data !== undefined && args.data !== '') {
                 // 调用区块链模块的挖矿方法，传入数据
-                blockchain.mine(args.data);
+                blockchain.mine(String(args.data));
                 // 广播挖矿结果给其他的节点
                 p2p.broadcastLatest();
             }

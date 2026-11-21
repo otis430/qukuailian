@@ -35,7 +35,7 @@
             <button @click="fetchBlocks" class="refresh-btn">刷新区块链</button>
             <div class="auto-refresh">
                 <label for="auto-refresh">
-                    <input type="checkbox" v-model="autoRefresh">shuaxin
+                    <input type="checkbox" v-model="autoRefresh">刷新
                 </label>
             </div>
         </div>
@@ -137,8 +137,11 @@ const getCurrentNodeP2pPort = () => {
     const currentNode = availableNodes.value.find(n => n.apiPort === currentApiPort.value)
     return currentNode?.p2pPort || null;
 }
+// 链里的 timestamp 本身是毫秒（创世块 1508270000000），不能再乘 1000；
+// 这里兼容一下以秒为单位的老数据
 const formateTime = (timestamp) => {
-    return dayjs(timestamp * 1000).format('YYYY-MM-DD HH:mm:ss');
+    const ms = timestamp < 1e12 ? timestamp * 1000 : timestamp;
+    return dayjs(ms).format('YYYY-MM-DD HH:mm:ss');
 }
 const startPolling = () => {
     if (timer) clearInterval(timer);
