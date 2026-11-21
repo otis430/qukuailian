@@ -21,8 +21,19 @@ class PeerToPeer {
         this.serverPort = port; // 保存本节点的监听端口
         const server = net.createServer((socket) => {
             this.initConnection(socket); // 初始化新连接
-        }).listen(port); // 监听指定端口
-        console.log(`Server started on port ${port}`);
+        });
+        // 监听失败（端口被占用、无权限等）时不能抛出未捕获异常，否则整个 CLI 会退出
+        server.on('error', (err) => {
+            this.serverPort = null;
+            if (err.code === 'EADDRINUSE') {
+                console.log(`端口 ${port} 已被占用，请换一个端口再 open`);
+            } else {
+                console.log(`服务启动失败: ${err.message}`);
+            }
+        });
+        server.listen(port, () => {
+            console.log(`Server started on port ${port}`);
+        }); // 监听指定端口
     }
     // 发现对等节点功能（当前版本未实现）
     discoverPeers() {
